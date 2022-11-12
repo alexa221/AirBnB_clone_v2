@@ -1,38 +1,35 @@
 #!/usr/bin/python3
-"""
-State Class from Models Module
-"""
-
-from models.base_model import BaseModel, Base
-import sqlalchemy
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+"""This is the state class"""
 import os
+import models
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, String, Integer
+from sqlalchemy.orm import relationship
 
 
 class State(BaseModel, Base):
-    """State class handles all application states"""
+    """This is the class for State
+    Attributes:
+        name: input name
+        cities = relationship between state and city tables.
+    """
 
-    if os.getenv('HBNB_TYPE_STORAGE', 'fs') == 'db':
-        __tablename__ = 'states'
+    __tablename__ = 'states'
+    if os.getenv('HBNB_TYPE_STORAGE') == 'db':
         name = Column(String(128), nullable=False)
-        cities = relationship('City', cascade="all, delete", backref='state')
+        cities = relationship(
+            'City', back_populates='state',
+            cascade='all, delete, delete-orphan')
+
     else:
         name = ""
 
-    def __init__(self, *args, **kwargs):
-        """instantiates a new state"""
-        super().__init__(self, *args, **kwargs)
-
-    @property
-    def cities(self):
-        """return list of cities"""
-        if os.getenv('HBNB_TYPE_STORAGE', '') != 'db':
-            all_cities = models.storage.all("City")
-            city_list = []
-            for cityid in all_cities:
-                if all_cities[cityid].state_id == self.id:
-                    city_list.append(all_cities[cityid])
-            return city_list
+        @property
+        def cities(self):
+            """returns list of Cities and some relationships"""
+            cities_instances = []
+            cities_dict = models.storage.all(models.City)
+            for key, value in cities_dict.items():
+                if self.id == value.state_id:
+                    cities_instances.append(value)
+            return cities_instances

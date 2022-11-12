@@ -1,28 +1,23 @@
 #!/usr/bin/python3
-"""
-Amenity Class from Models Module
-"""
+"""This is the amenity class"""
 import os
 from models.base_model import BaseModel, Base
-import sqlalchemy
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
+from models.place import place_amenity
 
 
 class Amenity(BaseModel, Base):
-    """Amenity class handles all application amenities"""
+    """This is the class for Amenity
+    Attributes:
+        name: input name
+    """
 
-    if os.getenv('HBNB_TYPE_STORAGE', 'fs') == 'db':
-        __tablename__ = 'amenities'
+    __tablename__ = 'amenities'
+    if os.getenv('HBNB_TYPE_STORAGE') == 'db':
         name = Column(String(128), nullable=False)
-        place_amenities = relationship("Place",
-                                       secondary="place_amenity",
-                                       viewonly=False)
+        place_amenities = relationship('Place',
+                                       secondary=place_amenity,
+                                       back_populates='amenities')
     else:
         name = ""
-
-    def __init__(self, *args, **kwargs):
-        """instantiates a new amenity"""
-        super().__init__(self, *args, **kwargs)

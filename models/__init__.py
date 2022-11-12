@@ -1,21 +1,20 @@
 #!/usr/bin/python3
+"""create a unique FileStorage instance for your application"""
 import os
-from models.engine import file_storage
-from models.engine import db_storage
-from models.base_model import BaseModel, Base
-from models.amenity import Amenity
-from models.city import City
-from models.place import Place, PlaceAmenity
-from models.review import Review
-from models.state import State
+from models.base_model import BaseModel
 from models.user import User
-from sqlalchemy import MetaData
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 
-CNC = file_storage.FileStorage.CNC
-DNC = db_storage.DBStorage.DNC
-if os.getenv('HBNB_TYPE_STORAGE', 'fs') == 'db':
-    storage = db_storage.DBStorage()
+
+if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+    from models.engine.db_storage import DBStorage
+    storage = DBStorage()
     storage.reload()
 else:
-    storage = file_storage.FileStorage()
+    from models.engine.file_storage import FileStorage
+    storage = FileStorage()
     storage.reload()
